@@ -1,0 +1,6 @@
+name: holograms
+version: '1.0-SNAPSHOT'
+main: de.acranum.holograms.Holograms
+api-version: '1.21'
+depend: [ChestShop]
+
