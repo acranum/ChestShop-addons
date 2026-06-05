@@ -23,19 +23,14 @@ public final class Holograms extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new ShopCreateListener(), this);
         Bukkit.getPluginManager().registerEvents(new BlockBreak(), this);
 
+        killHolograms();
         reloadHolograms();
         //kill and redo all holograms
     }
 
     @Override
     public void onDisable() {
-        for (World world : Bukkit.getWorlds()) {
-            for (Entity entity : world.getEntities()) {
-                if (entity instanceof Display) {
-                    entity.remove();
-                }
-            }
-        }
+        killHolograms();
     }
     public static Holograms getInstance() {
         return inctance;
@@ -47,6 +42,15 @@ public final class Holograms extends JavaPlugin {
 
     private void reloadHolograms() {
         spawnDisplaysFromConfig(api.getShopconfig());
+    }
+    private void killHolograms() {
+        for (World world : Bukkit.getWorlds()) {
+            for (Entity entity : world.getEntities()) {
+                if (entity instanceof Display) {
+                    entity.remove();
+                }
+            }
+        }
     }
     public void spawnDisplaysFromConfig(FileConfiguration config) {
         ConfigurationSection shops = config.getConfigurationSection("shops");

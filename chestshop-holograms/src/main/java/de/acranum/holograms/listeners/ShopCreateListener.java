@@ -8,7 +8,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.Sign;
+import org.bukkit.block.data.type.HangingSign;
+import org.bukkit.block.data.type.WallHangingSign;
 import org.bukkit.block.data.type.WallSign;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.event.EventHandler;
@@ -29,41 +30,52 @@ public class ShopCreateListener implements Listener {
 
 
     public static void createhologramm(Shop shop) {
-        Vector facing = getSignFacing(shop.getSign());
-        Location newLocation = new Location(shop.getLocation().getWorld(), shop.getLocation().getBlockX() + 0.5 + facing.getBlockX(), shop.getLocation().getBlockY() + 1.2, shop.getLocation().getBlockZ() + 0.5 + facing.getBlockZ()).setDirection(facing);
-        float yaw = newLocation.getYaw();
-        float pitch = newLocation.getPitch();
+        Vector offset = getSignOffset(shop.getSign());
+        BlockFace facing = getSignFacing(shop.getSign());
+
+        Location newLocation = new Location(shop.getLocation().getWorld(), shop.getLocation().getBlockX() + 0.5 + offset.getBlockX(), shop.getSign().getY() + 1.2 + offset.getY(), shop.getLocation().getBlockZ() + 0.5 + offset.getBlockZ());
+
+        Vector faceVec = facing.getDirection();
+        float yaw = (float) Math.toDegrees(Math.atan2(-faceVec.getX(), faceVec.getZ()));
 
         ItemDisplay item = shop.getLocation().getWorld().spawn(newLocation, ItemDisplay.class);
 
         if (shop.getItem() == null) item.setItemStack(new ItemStack(Material.BARRIER));
-        else item.setItemStack(shop.getItem());
+        else {
+            ItemStack itemStack = shop.getItem().clone();
+            itemStack.setAmount(1);
+            item.setItemStack(itemStack);
+        }
 
-        Quaternionf rotation = new Quaternionf().rotateYXZ(
-                (float) Math.toRadians(-yaw),     // Yaw (horizontal)
-                (float) Math.toRadians(-pitch),   // Pitch (vertikal)
-                0                                  // Roll ist 0
-        );
-
+        Quaternionf rotation = new Quaternionf().rotateY((float) Math.toRadians(-yaw));
         item.setTransformation(new Transformation(new Vector3f(0,0,0), rotation, new Vector3f(0.5f, 0.5f, 0.5f), new Quaternionf()));
     }
 
 
-    public static Vector getSignFacing(Block sign) {
-        if (sign.getState() instanceof Sign) {
-            BlockFace attachedFace = ((WallSign) sign.getState().getBlock().getBlockData()).getFacing().getOppositeFace();
-            Vector direction;
-
-            switch (attachedFace) {
-                case NORTH -> direction = new Vector(0, 0, -1);
-                case SOUTH -> direction = new Vector(0, 0, 1);
-                case EAST -> direction = new Vector(1, 0, 0);
-                case WEST -> direction = new Vector(-1, 0, 0);
-                default -> direction = new Vector(0, 0, -1);
-            }
-            return direction;
+    public static Vector getSignOffset(Block sign) {
+        if (sign.getBlockData() instanceof HangingSign) {
+            return new Vector(0, 0.2, 0);
+        } else if (sign.getBlockData() instanceof org.bukkit.block.data.type.Sign) {
+            return new Vector(0, 0.2, 0);
+        } else if (sign.getBlockData() instanceof WallHangingSign) {
+            return new Vector(0, 0.2, 0);
         }
-        return new Vector(0,0,-1);
+        //Wallsign
+        BlockFace facing = getSignFacing(sign);
+        return new Vector(facing.getModX(), 0, facing.getModZ());
+    }
+
+    public static BlockFace getSignFacing(Block sign) {
+        if (sign.getBlockData() instanceof WallSign wallSign) {
+            return wallSign.getFacing().getOppositeFace();
+        } else if (sign.getBlockData() instanceof HangingSign hangingSign) {
+            return hangingSign.getRotation().getOppositeFace();
+        } else if (sign.getBlockData() instanceof WallHangingSign wallHangingSign) {
+            return wallHangingSign.getFacing().getOppositeFace();
+        } else if (sign.getBlockData() instanceof org.bukkit.block.data.type.Sign standingSign) {
+            return standingSign.getRotation().getOppositeFace();
+        }
+        return BlockFace.NORTH;
     }
 
 }

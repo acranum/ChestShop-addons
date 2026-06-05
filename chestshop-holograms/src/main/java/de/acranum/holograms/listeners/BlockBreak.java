@@ -4,10 +4,6 @@ import de.acranum.chestshop.api.events.ShopDestroyEvent;
 import de.acranum.chestshop.api.shop.Shop;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.Sign;
-import org.bukkit.block.data.type.WallSign;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
@@ -22,7 +18,7 @@ public class BlockBreak implements Listener {
     }
 
     public void removeDisplayAtLocation(Location location, Shop shop) {
-        Vector facing = ShopCreateListener.getSignFacing(shop.getSign());
+        Vector facing = ShopCreateListener.getSignOffset(shop.getSign());
         Location newLocation = new Location(location.getWorld(), location.getBlockX() + 0.5 + facing.getBlockX(), location.getBlockY() + 1.2, location.getBlockZ() + 0.5 + facing.getBlockZ()).setDirection(facing);
 
         World world = location.getWorld();
