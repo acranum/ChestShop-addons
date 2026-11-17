@@ -4,6 +4,7 @@ import de.acranum.chestshop.api.ChestShopAPI;
 import de.acranum.chestshop.api.ChestShopProvider;
 import de.acranum.chestshop.api.events.PostShopCreateEvent;
 import de.acranum.chestshop.api.shop.Shop;
+import de.acranum.holograms.Holograms;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -15,6 +16,7 @@ import org.bukkit.entity.ItemDisplay;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
 import org.joml.Quaternionf;
@@ -39,6 +41,9 @@ public class ShopCreateListener implements Listener {
         float yaw = (float) Math.toDegrees(Math.atan2(-faceVec.getX(), faceVec.getZ()));
 
         ItemDisplay item = shop.getLocation().getWorld().spawn(newLocation, ItemDisplay.class);
+        if (Holograms.getHologramKey() != null) {
+            item.getPersistentDataContainer().set(Holograms.getHologramKey(), PersistentDataType.BYTE, (byte) 1);
+        }
 
         if (shop.getItem() == null) item.setItemStack(new ItemStack(Material.BARRIER));
         else {
