@@ -2,6 +2,7 @@ package de.acranum.holograms.listeners;
 
 import de.acranum.chestshop.api.events.ShopDestroyEvent;
 import de.acranum.chestshop.api.shop.Shop;
+import de.acranum.holograms.Holograms;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Display;
@@ -25,7 +26,7 @@ public class BlockBreak implements Listener {
         if (world == null) return;
 
         for (Entity entity : world.getNearbyEntities(newLocation, 1, 1, 1)) {
-            if (entity instanceof Display) {
+            if (Holograms.isChestShopHologram(entity)) {
                 entity.remove();
             }
         }

@@ -6,20 +6,24 @@ import de.acranum.chestshop.api.ChestShopAPI;
 import de.acranum.chestshop.api.ChestShopProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Holograms extends JavaPlugin {
     public static ChestShopAPI api = ChestShopProvider.get();
     public static Holograms inctance;
+    private static NamespacedKey hologramKey;
 
     @Override
     public void onEnable() {
         inctance = this;
+        hologramKey = new NamespacedKey(this, "chestshop_hologram");
         Bukkit.getPluginManager().registerEvents(new ShopCreateListener(), this);
         Bukkit.getPluginManager().registerEvents(new BlockBreak(), this);
 
@@ -40,13 +44,23 @@ public final class Holograms extends JavaPlugin {
         return api;
     }
 
+    public static NamespacedKey getHologramKey() {
+        return hologramKey;
+    }
+
+    public static boolean isChestShopHologram(Entity entity) {
+        return entity instanceof Display
+                && hologramKey != null
+                && entity.getPersistentDataContainer().has(hologramKey, PersistentDataType.BYTE);
+    }
+
     private void reloadHolograms() {
         spawnDisplaysFromConfig(api.getShopconfig());
     }
     private void killHolograms() {
         for (World world : Bukkit.getWorlds()) {
             for (Entity entity : world.getEntities()) {
-                if (entity instanceof Display) {
+                if (isChestShopHologram(entity)) {
                     entity.remove();
                 }
             }
